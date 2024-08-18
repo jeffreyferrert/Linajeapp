@@ -6,6 +6,8 @@ import AccessCard from '@/components/CustomAccessCard';
 import { Link, router } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
 import CustomSearchBar from '@/components/CustomSearchBar';
+import { useDataContext } from '@/context/DataProvider';
+import CustomAnimalCard from '@/components/CustomAnimalCard';
 
 const filterData = [
   { name: 'Fecha', icon: 'calendar' as IconName },
@@ -21,12 +23,13 @@ const accessData = [
 ];
 
 const Home = () => {
+  const { forms } = useDataContext();
+
   return (
-    <SafeAreaView className={'bg-gray-200 h-full '}>
+    <SafeAreaView className={'bg-gray-200 h-full'}>
       <ScrollView>
-        <View className={'h-full px-4 py-10'}>
+        <View className={'h-full p-5 mb-10'}>
           <View className="flex-row justify-around items-center">
-            {/*<SearchInput initialQuery={""}/>*/}
             <CustomSearchBar placeholder="Buscar" value={''} />
             <View
               className={
@@ -74,11 +77,19 @@ const Home = () => {
 
           {/* ANIMALES */}
           <View>
-            <View className={'flex-row items-center justify-between '}>
+            <View className={'flex-row items-center justify-between mb-4'}>
               <Text className="font-semibold text-lg">Mis animales</Text>
               <Text>
                 cant. <Text className="font-semibold">100</Text>
               </Text>
+            </View>
+
+            <View>
+              <ScrollView showsHorizontalScrollIndicator={false}>
+                {forms.map((animal, animalIndex) => (
+                  <CustomAnimalCard key={`${animalIndex}`} animal={animal} />
+                ))}
+              </ScrollView>
             </View>
           </View>
         </View>

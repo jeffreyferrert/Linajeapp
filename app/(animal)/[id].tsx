@@ -21,8 +21,8 @@ import ArbolGenealogicoComponent from '@/app/(animal)/ArbolGenealogicoComponent'
 const profileTabs = [
   { name: 'Información', component: InfoComponent },
   { name: 'Linaje', component: LinajeComponent },
+  { name: 'Familia ', component: ArbolGenealogicoComponent },
   { name: 'Atributos', component: AtributosComponent },
-  { name: 'Árbol Genealógico', component: ArbolGenealogicoComponent },
 ];
 
 const Animal = () => {
@@ -41,7 +41,7 @@ const Animal = () => {
   const [selectedTab, setSelectedTab] = useState(profileTabs[0]);
 
   return (
-    <SafeAreaView className={'bg-white h-full'}>
+    <SafeAreaView className={'bg-gray-200 h-full'}>
       <View className={'relative'}>
         <ScrollView
           horizontal
@@ -78,7 +78,7 @@ const Animal = () => {
       </View>
 
       {/* ALTERNATIVES */}
-      <View className={'bg-gray-200 p-2'}>
+      <View className={'bg-white p-2'}>
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
           {profileTabs.map((item, index) => (
             <TouchableOpacity key={index} onPress={() => setSelectedTab(item)}>

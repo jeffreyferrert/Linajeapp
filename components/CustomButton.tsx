@@ -8,6 +8,7 @@ type CustomButtonProps = {
   containerStyles?: string;
   textStyles?: string;
   rightIcon?: boolean;
+  disabled?: boolean;
 };
 
 const CustomButton = ({
@@ -16,11 +17,13 @@ const CustomButton = ({
   containerStyles,
   textStyles,
   rightIcon = false,
+  disabled = false,
 }: CustomButtonProps) => {
   return (
     <TouchableOpacity
       onPress={handlePress}
       activeOpacity={0.7}
+      disabled={disabled}
       className={`bg-secondary rounded-xl min-h-[62px] flex flex-row justify-center items-center ${containerStyles}`}
     >
       <Text className={`text-primary font-semibold text-lg ${textStyles}`}>

@@ -1,18 +1,19 @@
-import { Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import CustomProgressBar from '@/components/CustomProgressBar';
-import { useState } from 'react';
-import CustomFormField from '@/components/CustomFormField';
-import { AntDesign, Foundation } from '@expo/vector-icons';
-import CustomButton from '@/components/CustomButton';
-import CustomSeparator from '@/components/CustomSeparator';
+import { AntDesign } from '@expo/vector-icons';
 import AnimalForm from '@/app/(create)/animal-form';
 
 type RegisterAnimalProps = {
   data: any;
   setData: (value: any) => void;
+  setIsStepOneComplete: (value: boolean) => void;
 };
 
-const RegisterAnimal = ({ data, setData }: RegisterAnimalProps) => {
+const RegisterAnimal = ({
+  data,
+  setData,
+  setIsStepOneComplete,
+}: RegisterAnimalProps) => {
   const handleChangeValue = (
     formIndex: number,
     animalIndex: number,
@@ -44,11 +45,22 @@ const RegisterAnimal = ({ data, setData }: RegisterAnimalProps) => {
         mother: '',
         birthDate: '',
         animals: [{ plaque: '', sex: '', linaje: {}, status: '' }],
+        isSaved: false,
       },
     ]);
+    setIsStepOneComplete(false);
   };
 
   console.log(JSON.stringify(data));
+
+  const handleSave = (formIndex: number, updatedForm: any) => {
+    const newData = [...data];
+    newData[formIndex] = { ...updatedForm, isSaved: true };
+    setData(newData);
+
+    const allSaved = newData.every((form) => form.isSaved);
+    setIsStepOneComplete(allSaved);
+  };
 
   return (
     <View className={'mb-16'}>
@@ -67,10 +79,7 @@ const RegisterAnimal = ({ data, setData }: RegisterAnimalProps) => {
           key={formIndex}
           form={form}
           formIndex={formIndex}
-          handleChangeValue={handleChangeValue}
-          addPlaque={addPlaque}
-          data={data}
-          setData={setData}
+          handleSave={(updatedForm: any) => handleSave(formIndex, updatedForm)}
         />
       ))}
 

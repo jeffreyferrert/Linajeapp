@@ -13,13 +13,14 @@ const Create = () => {
   // const { createForm } = useDataContext()
   const [isStepOneComplete, setIsStepOneComplete] = useState(false);
   const [isStepTwoComplete, setIsStepTwoComplete] = useState(false);
-
+  console.log('isStepOneComplete', isStepOneComplete);
   const [data, setData] = useState([
     {
       father: '',
       mother: '',
       birthDate: '',
       animals: [{ plaque: '', sex: '', linaje: {}, status: '' }],
+      isSaved: false,
     },
   ]);
 
@@ -27,14 +28,18 @@ const Create = () => {
     <SafeAreaView className={'bg-gray-200 h-full py-10'}>
       <ScrollView className={'px-4 '}>
         <CustomHeader />
-        <RegisterAnimal data={data} setData={setData} />
+        <RegisterAnimal
+          data={data}
+          setData={setData}
+          setIsStepOneComplete={setIsStepOneComplete}
+        />
       </ScrollView>
 
       <View className="absolute bottom-0 w-full h-[100px] justify-center shadow bg-white rounded-tl-xl rounded-tr-xl ">
         <CustomButton
-          title="Agregar animal o camada"
+          title="Continuar"
           handlePress={() => router.push('../(create)')}
-          containerStyles={`bg-primary w-80 mx-auto mb-1`}
+          containerStyles={`${isStepOneComplete ? 'bg-primary' : 'bg-gray-200'} w-80 mx-auto mb-1`}
           textStyles="text-white"
         />
       </View>

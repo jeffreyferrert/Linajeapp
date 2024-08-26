@@ -69,7 +69,7 @@ const RegisterAnimal = ({
         <Text className={'font-semibold text-2xl'}>
           Registra el perfil del animal
         </Text>
-        <Text className={'text-base py-1'}>
+        <Text className={'text-base py-1 text-gray-500'}>
           Sube datos, fotos y videos para que toda comunidad lo pueda ver.
         </Text>
       </View>

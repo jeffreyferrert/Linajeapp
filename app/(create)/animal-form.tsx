@@ -47,10 +47,10 @@ const AnimalForm = ({ form, formIndex, handleSave }: AnimalFormProps) => {
 
   if (localForm.isSaved) {
     return (
-      <View className="summary-section">
+      <View className={'mx-4'}>
         <Pressable
           onPress={() => setLocalForm((prev) => ({ ...prev, isSaved: false }))}
-          className={'flex-row justify-end pb-3 pr-2'}
+          className={'flex-row justify-end pb-3 pr-2 items-center'}
         >
           <Feather name="edit" size={20} color="blue" />
           <Text> Editar Camada</Text>

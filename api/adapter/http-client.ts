@@ -23,11 +23,15 @@ class HttpClient {
 
   initializeInterceptors() {
     this.instance.interceptors.request.use((config: any) => {
-      // Configurar siempre el token de autenticación
-      const token = this.sessionAdapter.getValue('token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      const requiresAuth = config.requiresAuth ?? true;
+
+      if (requiresAuth) {
+        const token = this.sessionAdapter.getValue('token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
       }
+
       return config;
     });
 
@@ -35,36 +39,34 @@ class HttpClient {
       (response: any) => response,
       (error: any) => {
         if (error.response && error.response.status === 401) {
-          // TODO: Implementar un mensaje de error
+          // TODO: Implementar un mensaje de error o redirigir al login
         }
         return Promise.reject(error);
       },
     );
   }
 
-  async get(url: string, params?: any) {
-    return this.instance.get(url, { params });
+  async get(url: string, params?: any, requiresAuth = true) {
+    return this.instance.get(url, { params, requiresAuth });
   }
 
-  async post(url: string, data: any) {
-    return this.instance.post(url, data);
+  async post(url: string, data: any, requiresAuth = true) {
+    return this.instance.post(url, data, { requiresAuth });
   }
 
-  async put(url: string, data: any) {
-    return this.instance.put(url, data);
+  async put(url: string, data: any, requiresAuth = true) {
+    return this.instance.put(url, data, { requiresAuth });
   }
 
-  async patch(url: string, data: any) {
-    return this.instance.patch(url, data);
+  async patch(url: string, data: any, requiresAuth = true) {
+    return this.instance.patch(url, data, { requiresAuth });
   }
 
-  async delete(url: string) {
-    return this.instance.delete(url);
+  async delete(url: string, requiresAuth = true) {
+    return this.instance.delete(url, { requiresAuth });
   }
 }
 
 const httpClient = new HttpClient();
 
-class LogedInHttpClient extends HttpClient {}
-
-export { HttpClient, LogedInHttpClient, httpClient };
+export { HttpClient, httpClient };

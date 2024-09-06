@@ -20,4 +20,41 @@ type User = {
   id: number;
 };
 
-export type { User };
+type RegisterUserSchema = {
+  email: string;
+  first_name: string;
+  last_name: string;
+  username: string;
+  phone: string;
+  birthdate: string;
+  country: string;
+  password: string;
+};
+
+type UpdateUserSchema = {
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  phone?: string;
+  birthdate?: string;
+  country?: string;
+  terms_accepted?: boolean;
+  privacy_accepted?: boolean;
+};
+
+type MeResponse = {
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  phone?: string;
+  birthdate?: string;
+  country?: string;
+  is_active: boolean;
+  email_verified: boolean;
+  phone_verified: boolean;
+  is_validated: boolean;
+};
+
+export type { User, RegisterUserSchema, UpdateUserSchema, MeResponse };

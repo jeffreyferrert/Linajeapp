@@ -1,4 +1,8 @@
-import { AuthRestAdapter, UserRestAdapter } from '../adapter';
+import {
+  AuthRestAdapter,
+  UserRestAdapter,
+  AnimalRestAdapter,
+} from '../adapter';
 import {
   // Auth
   IAuthAPI,
@@ -8,6 +12,10 @@ import {
   IUserAPI,
   UserAPI,
   IUserAdapter,
+  // Animal
+  IAnimalAPI,
+  AnimalAPI,
+  IAnimalAdapter,
 } from '../domain';
 
 namespace AppLoader {
@@ -16,6 +24,9 @@ namespace AppLoader {
 
   const userAdapter: IUserAdapter = new UserRestAdapter();
   const userAPI = new UserAPI(userAdapter);
+
+  const animalAdapter: IAnimalAdapter = new AnimalRestAdapter();
+  const animalAPI = new AnimalAPI(animalAdapter);
 
   /**
    * Returns the auth object
@@ -34,8 +45,21 @@ namespace AppLoader {
   export function getUserAPI(): IUserAPI {
     return userAPI;
   }
+
+  /**
+   * Returns the animal object
+   * @returns {IAnimalAPI} - The animal object
+   **/
+
+  export function getAnimalAPI(): IAnimalAPI {
+    return animalAPI;
+  }
 }
 
 const authInstance = AppLoader.getAuthAPI();
 
-export { AppLoader, authInstance };
+const userInstance = AppLoader.getUserAPI();
+
+const animalInstance = AppLoader.getAnimalAPI();
+
+export { AppLoader, authInstance, userInstance, animalInstance };

@@ -1,14 +1,17 @@
 import axios from 'axios';
 import { SessionAdapter } from './session-adapter';
+import { SecureSessionStorage } from './secure-session-adapter';
+import { router } from 'expo-router';
 
 const variables = {
-  API_BASE_URL: 'https://api.linajeapp.com',
+  API_BASE_URL: 'https://back.linajeapp.com',
   API_TIMEOUT: parseInt(process.env.REACT_APP_API_TIMEOUT || '5000'),
 };
 
 class HttpClient {
   instance: any;
   sessionAdapter = new SessionAdapter();
+  secureSessionAdapter = new SecureSessionStorage();
   useCsrf = false;
 
   constructor() {
@@ -21,12 +24,13 @@ class HttpClient {
     this.initializeInterceptors();
   }
 
-  initializeInterceptors() {
-    this.instance.interceptors.request.use((config: any) => {
+  async initializeInterceptors() {
+    this.instance.interceptors.request.use(async (config: any) => {
       const requiresAuth = config.requiresAuth ?? true;
 
       if (requiresAuth) {
-        const token = this.sessionAdapter.getValue('token');
+        console.log('Requiere autenticación');
+        const token = await this.secureSessionAdapter.getValue('token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -37,10 +41,14 @@ class HttpClient {
 
     this.instance.interceptors.response.use(
       (response: any) => response,
-      (error: any) => {
+      async (error: any) => {
         if (error.response && error.response.status === 401) {
-          // TODO: Implementar un mensaje de error o redirigir al login
+          console.log('Error 401', error);
+          await this.secureSessionAdapter.removeValue('token');
+          await this.sessionAdapter.flush();
+          router.push('/sign-in');
         }
+        console.log('Error en la petición', error);
         return Promise.reject(error);
       },
     );
@@ -51,6 +59,7 @@ class HttpClient {
   }
 
   async post(url: string, data: any, requiresAuth = true) {
+    console.log('Post', url, data);
     return this.instance.post(url, data, { requiresAuth });
   }
 

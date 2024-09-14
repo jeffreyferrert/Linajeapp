@@ -12,3 +12,9 @@ export * from './user';
 export * from './types/user';
 export * from './ports/api/user';
 export * from './ports/spi/iuser-adapter';
+
+// Animal API
+export * from './animal';
+export * from './types/animal';
+export * from './ports/api/animal';
+export * from './ports/spi/ianimal-adapter';

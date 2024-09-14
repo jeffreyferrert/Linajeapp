@@ -29,6 +29,10 @@ const Animal = () => {
   const { id } = useLocalSearchParams();
   const { forms } = useDataContext();
   const animal = forms.find((form) => form.id === Number(id));
+  console.log('Animal', animal);
+  if (!animal) {
+    return <Text>Animal no encontrado</Text>;
+  }
   const screenHeight = Dimensions.get('window').height;
   const imageHeight = screenHeight * 0.3;
 

@@ -1,17 +1,21 @@
 import { ISessionAdapter } from '../domain';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 class SessionAdapter implements ISessionAdapter {
-  storeValue(key: string, value: string, duration: number | null): void {
-    localStorage.setItem(key, value);
+  async storeValue(
+    key: string,
+    value: string,
+    duration: number | null,
+  ): Promise<void> {
+    await AsyncStorage.setItem(key, value);
   }
-  getValue(key: string): string | null {
-    return localStorage.getItem(key);
+  async getValue(key: string): Promise<string | null> {
+    return await AsyncStorage.getItem(key);
   }
-  removeValue(key: string): void {
-    localStorage.removeItem(key);
+  async removeValue(key: string): Promise<void> {
+    await AsyncStorage.removeItem(key);
   }
-  flush(): void {
-    localStorage.clear();
+  async flush(): Promise<void> {
+    await AsyncStorage.clear();
   }
 }
 

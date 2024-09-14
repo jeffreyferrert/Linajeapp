@@ -1,6 +1,6 @@
 type AuthCredentials = {
   provider: 'email' | 'phone';
-  contact: string;
+  email: string;
   password: string;
 };
 

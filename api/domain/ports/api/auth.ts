@@ -1,4 +1,4 @@
-import type { User } from '../../types/user';
+import type { User, RegisterUserSchema } from '../../types/user';
 import type {
   LoginResponse,
   AuthCredentials,
@@ -10,8 +10,8 @@ import type {
 
 interface IAuthAPI {
   login(credentials: AuthCredentials): Promise<LoginResponse>;
-  register(user: User): Promise<User>;
-  logout(): Promise<void>;
+  register(user: RegisterUserSchema): Promise<User>;
+  logout(): Promise<boolean>;
   requestOTP(otpRequest: OTPRequest): Promise<void>;
   validateOTP(otpValidate: OTPValidate): Promise<LoginResponse>;
   refreshAccessToken(

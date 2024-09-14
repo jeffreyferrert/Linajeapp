@@ -1,11 +1,16 @@
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+// import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import { useSession } from '@/context/AuthProvider';
+
+import { Redirect, Slot } from 'expo-router';
+import { SessionProvider } from '@/context/AuthProvider';
 import DataProvider from '@/context/DataProvider';
 
-SplashScreen.preventAutoHideAsync();
+import { Text } from 'react-native';
+// SplashScreen.preventAutoHideAsync();
 
 const RootLayout = () => {
   const [fontsLoaded, error] = useFonts({
@@ -18,20 +23,28 @@ const RootLayout = () => {
   }, [fontsLoaded, error]);
 
   if (!fontsLoaded) return null;
-  if (!fontsLoaded && !error) return null;
 
   return (
-    <DataProvider>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(animal)" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(create)" options={{ headerShown: false }} />
-        <Stack.Screen name="(home)" options={{ headerShown: false }} />
-        <Stack.Screen name="(profile)" options={{ headerShown: false }} />
-      </Stack>
-    </DataProvider>
+    <SessionProvider>
+      <AppContent />
+    </SessionProvider>
   );
 };
 
 export default RootLayout;
+
+const AppContent = () => {
+  const { isLoading, session } = useSession();
+
+  console.log('AppContent', isLoading);
+
+  if (isLoading) {
+    return <Text>Cargando...</Text>;
+  }
+
+  return (
+    <DataProvider>
+      <Slot />
+    </DataProvider>
+  );
+};

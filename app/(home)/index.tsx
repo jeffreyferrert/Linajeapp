@@ -23,7 +23,27 @@ const accessData = [
 ];
 
 const Home = () => {
-  const { forms } = useDataContext();
+  const { forms, loading, error } = useDataContext();
+
+  if (loading) {
+    return (
+      <SafeAreaView
+        className={'bg-gray-200 h-full justify-center items-center'}
+      >
+        <Text>Cargando...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView
+        className={'bg-gray-200 h-full justify-center items-center'}
+      >
+        <Text>Error al cargar los datos</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className={'bg-gray-200 h-full'}>
@@ -61,7 +81,7 @@ const Home = () => {
 
           {/* ACCESO DIRECTO */}
           <View>
-            <Text className="font-semibold text-lg">Acceso directos</Text>
+            <Text className="font-semibold text-lg">Accesos directos</Text>
 
             <View className="flex-row my-4">
               <ScrollView
@@ -80,22 +100,20 @@ const Home = () => {
             <View className={'flex-row items-center justify-between mb-4'}>
               <Text className="font-semibold text-lg">Mis animales</Text>
               <Text>
-                cant. <Text className="font-semibold">100</Text>
+                cant. <Text className="font-semibold">{forms.length}</Text>
               </Text>
             </View>
 
             <View>
-              <ScrollView showsHorizontalScrollIndicator={false}>
-                {forms.map((animal, animalIndex) => (
-                  <CustomAnimalCard key={`${animalIndex}`} animal={animal} />
-                ))}
-              </ScrollView>
+              {forms.map((animal) => (
+                <CustomAnimalCard key={animal.id} animal={animal} />
+              ))}
             </View>
           </View>
         </View>
       </ScrollView>
 
-      {/* CREATION BUTTON */}
+      {/* BOTÓN DE CREACIÓN */}
       <View className="absolute bottom-0 w-full h-[100px] justify-center shadow bg-white rounded-tl-xl rounded-tr-xl ">
         <CustomButton
           title="Agregar animal o camada"

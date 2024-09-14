@@ -1,3 +1,4 @@
+import type { CountryCode } from 'libphonenumber-js/types';
 type User = {
   email: string;
   first_name: string;
@@ -24,10 +25,10 @@ type RegisterUserSchema = {
   email: string;
   first_name: string;
   last_name: string;
-  username: string;
+  username?: string;
   phone: string;
   birthdate: string;
-  country: string;
+  country: CountryCode;
   password: string;
 };
 

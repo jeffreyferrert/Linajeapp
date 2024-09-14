@@ -7,6 +7,7 @@ import {
   RefreshTokenResponse,
   RefreshTokenRequest,
   AuthCredentials,
+  RegisterUserSchema,
 } from '../domain';
 import { HttpClient, httpClient } from './http-client';
 
@@ -14,26 +15,33 @@ class AuthRestAdapter implements IAuthAdapter {
   private httpClient: HttpClient = httpClient;
 
   async login(credentials: AuthCredentials): Promise<LoginResponse> {
-    const response = await this.httpClient.post('auth/login', credentials);
+    const response = await this.httpClient.post(
+      'auth/login/',
+      credentials,
+      false,
+    );
     return response.data;
   }
 
-  async register(user: User): Promise<User> {
-    const response = await this.httpClient.post('auth/register', user);
+  async register(user: RegisterUserSchema): Promise<User> {
+    const response = await this.httpClient.post('user/register', user, false);
     return response.data;
   }
 
-  async logout(): Promise<void> {
-    await this.httpClient.post('auth/logout', {});
+  async logout(): Promise<boolean> {
+    console.log('logout1');
+    const response = await this.httpClient.post('auth/logout/', {});
+    console.log('logout2', response);
+    return response.status === 204;
   }
 
   async requestOTP(otpRequest: OTPRequest): Promise<void> {
-    await this.httpClient.post('auth/request-otp-code', otpRequest);
+    await this.httpClient.post('auth/request-otp-code/', otpRequest);
   }
 
   async validateOTP(otpValidate: OTPValidate): Promise<LoginResponse> {
     const response = await this.httpClient.post(
-      'auth/login/otp-validate',
+      'auth/login/otp-validate/',
       otpValidate,
     );
     return response.data;
@@ -42,7 +50,7 @@ class AuthRestAdapter implements IAuthAdapter {
   async refreshAccessToken(
     request: RefreshTokenRequest,
   ): Promise<RefreshTokenResponse> {
-    const response = await this.httpClient.post('auth/refresh', request);
+    const response = await this.httpClient.post('auth/refresh/', request);
     return response.data;
   }
 }

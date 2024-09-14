@@ -3,8 +3,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomHeader from '@/components/CustomHeader';
 import CustomButton from '@/components/CustomButton';
 import { router } from 'expo-router';
+import { useSession } from '@/context/AuthProvider';
+import { Redirect } from 'expo-router';
 
 const Profile = () => {
+  const { signOut, session } = useSession();
+  if (!session) {
+    return <Redirect href="/sign-in" />;
+  }
   return (
     <SafeAreaView className={'bg-gray-200 h-full px-4 py-10'}>
       <ScrollView>
@@ -40,7 +46,7 @@ const Profile = () => {
 
         <CustomButton
           title={'Cerrar Sesión'}
-          handlePress={() => router.push('./(auth)/sign-in')} // TODO: Implement logout
+          handlePress={signOut}
           containerStyles={'mt-20 px-5 w-80 mx-auto bg-primary'}
           textStyles={'text-white'}
         />

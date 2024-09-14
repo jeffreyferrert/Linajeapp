@@ -1,26 +1,56 @@
+import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView, View, Text } from 'react-native';
+import { ScrollView, View, Text, Alert } from 'react-native';
 import CustomHeader from '@/components/CustomHeader';
-import { Link, router } from 'expo-router';
+import { Link, Redirect, router } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
 import CustomFormField from '@/components/CustomFormField';
-import { useState } from 'react';
+import { authInstance } from '@/api/loader'; // Importa el AppLoader
+import { useNavigation } from '@react-navigation/native';
+import { useEffect } from 'react';
+import { useSession } from '@/context/AuthProvider';
 
 const SignIn = () => {
+  const { session, signIn } = useSession();
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    // Desactivar gestos de retroceso
+    navigation.setOptions({
+      gestureEnabled: false,
+    });
+  }, [navigation]);
+
   const [form, setForm] = useState({
     email: '',
     password: '',
   });
 
-  const submitForm = () => {
-    router.push('../(home)');
-    console.log('Submit form');
+  const [loading, setLoading] = useState(false); // Para manejar el estado de carga
+
+  if (session) {
+    return <Redirect href="/(home)" />;
+  }
+
+  const submitForm = async () => {
+    setLoading(true);
+    try {
+      await signIn(form);
+      router.push('../(home)');
+    } catch (error) {
+      Alert.alert(
+        'Error',
+        'Error al iniciar sesión. Verifica tus credenciales.',
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <SafeAreaView className={'bg-white h-full px-4 py-10'}>
       <ScrollView>
-        <CustomHeader />
+        <CustomHeader arrow_redirec_to={'/'} />
 
         <View className={'my-10'}>
           <Text className={'text-center font-semibold text-lg'}>
@@ -44,27 +74,24 @@ const SignIn = () => {
           type={'password'}
         />
 
-        <Link href={'/(auth)/forgot-password'} className={'my-5'}>
-          <Link
-            href={'/(auth)/forgot-password'}
-            className={'text-center font-semibold text-base'}
-          >
+        <Link href={'/forgot-password'} className={'my-5'}>
+          <Text className={'text-center font-semibold text-base'}>
             ¿Has olvidado tu contraseña?
-          </Link>
+          </Text>
         </Link>
 
-        {/* SUBMIT BUTTON */}
-
+        {/* BOTÓN DE SUBMIT */}
         <CustomButton
-          title={'Ingresar'}
+          title={loading ? 'Cargando...' : 'Ingresar'}
           handlePress={submitForm}
-          containerStyles={'bg-primary w-80 mx-auto'} // TODO: Change bg-primary to bg-title based on fields population
+          containerStyles={'bg-primary w-80 mx-auto'}
           textStyles={'text-white'}
+          disabled={loading} // Deshabilitar el botón mientras carga
         />
 
         <View className={'flex flex-row justify-center my-5'}>
           <Text className={'text-center text-base '}>¿No tienes cuenta? </Text>
-          <Link href={'/(auth)/sign-up'}>
+          <Link href={'/sign-up'}>
             <Text className={'text-center font-semibold text-base underline'}>
               Regístrate
             </Text>

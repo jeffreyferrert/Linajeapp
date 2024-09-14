@@ -13,6 +13,11 @@ import {
 class AnimalRestAdapter implements IAnimalAdapter {
   private httpClient: HttpClient = httpClient;
 
+  async getAnimal(id: number): Promise<AnimalPostOut> {
+    const response = await this.httpClient.get(`animals/${id}/`, null, true);
+    return response.data;
+  }
+
   async getAnimals(page: number = 1): Promise<PagedAnimalPostOut> {
     const response = await this.httpClient.get('animals/', { page }, true);
     return response.data;
@@ -69,6 +74,7 @@ class AnimalRestAdapter implements IAnimalAdapter {
   }
 
   async getAnimalByCode(code: string): Promise<AnimalPostOut> {
+    console.log('code', code);
     const response = await this.httpClient.get(
       'animals/animal',
       { code },

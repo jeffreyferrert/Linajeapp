@@ -1,7 +1,7 @@
 import CustomHeader from '@/components/CustomHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  Alert,
+  ActivityIndicator,
   Dimensions,
   Image,
   ScrollView,
@@ -11,38 +11,62 @@ import {
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useDataContext } from '@/context/DataProvider';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import InfoComponent from '@/app/(animal)/InfoComponent';
 import AtributosComponent from '@/app/(animal)/AtributosComponent';
 import LinajeComponent from '@/app/(animal)/LinajeComponent';
 import ArbolGenealogicoComponent from '@/app/(animal)/ArbolGenealogicoComponent';
+import { useDataContext } from '@/context/DataProvider';
+import type { AnimalPostOut } from '@/api/domain';
 
 const profileTabs = [
   { name: 'Información', component: InfoComponent },
   { name: 'Linaje', component: LinajeComponent },
-  { name: 'Familia ', component: ArbolGenealogicoComponent },
+  { name: 'Familia', component: ArbolGenealogicoComponent },
   { name: 'Atributos', component: AtributosComponent },
 ];
 
 const Animal = () => {
   const { id } = useLocalSearchParams();
-  const { forms } = useDataContext();
-  const animal = forms.find((form) => form.id === Number(id));
-  console.log('Animal', animal);
-  if (!animal) {
-    return <Text>Animal no encontrado</Text>;
+  const { getAnimalById, loading, error } = useDataContext();
+  const [animal, setAnimal] = useState<AnimalPostOut | null>(null);
+  const [selectedTab, setSelectedTab] = useState(profileTabs[0]);
+
+  useEffect(() => {
+    const fetchAnimal = async () => {
+      const data = await getAnimalById(Number(id));
+      setAnimal(data);
+    };
+    fetchAnimal();
+  }, [id]);
+
+  if (loading || !animal) {
+    return (
+      <SafeAreaView
+        className={'bg-gray-200 h-full justify-center items-center'}
+      >
+        <ActivityIndicator size="large" color="#0000ff" />
+      </SafeAreaView>
+    );
   }
+
+  if (error) {
+    return (
+      <SafeAreaView
+        className={'bg-gray-200 h-full justify-center items-center'}
+      >
+        <Text>Error al cargar los datos del animal</Text>
+      </SafeAreaView>
+    );
+  }
+
   const screenHeight = Dimensions.get('window').height;
   const imageHeight = screenHeight * 0.3;
 
   const images = [
-    'https://via.placeholder.com/600',
-    'https://via.placeholder.com/600',
-    'https://via.placeholder.com/600',
+    animal.thumbnail_profile_image_url || 'https://via.placeholder.com/600',
+    // Puedes agregar más imágenes si están disponibles en el objeto `animal`
   ];
-
-  const [selectedTab, setSelectedTab] = useState(profileTabs[0]);
 
   return (
     <SafeAreaView className={'bg-gray-200 h-full'}>
@@ -73,7 +97,9 @@ const Animal = () => {
           <Text className={'text-md font-semibold text-white'}>
             Su estado:{' '}
             <Text
-              className={`${animal.status === 'Vivo' ? 'text-green-500' : 'text-red-500'}`}
+              className={`${
+                animal.status === 'Vivo' ? 'text-green-500' : 'text-red-500'
+              }`}
             >
               {animal.status}
             </Text>
@@ -81,15 +107,15 @@ const Animal = () => {
         </View>
       </View>
 
-      {/* ALTERNATIVES */}
+      {/* TABS */}
       <View className={'bg-white p-2'}>
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
           {profileTabs.map((item, index) => (
             <TouchableOpacity key={index} onPress={() => setSelectedTab(item)}>
               <View
-                className={
-                  'flex-row bg-primary p-2 px-5 mr-2 rounded-lg min-w-[100px]'
-                }
+                className={`flex-row p-2 px-5 mr-2 rounded-lg min-w-[100px] ${
+                  selectedTab.name === item.name ? 'bg-primary' : 'bg-gray-300'
+                }`}
               >
                 <Text className={'text-white font-montserrat mx-auto'}>
                   {item.name}
@@ -100,8 +126,7 @@ const Animal = () => {
         </ScrollView>
       </View>
 
-      {/* CARD  PER SE */}
-
+      {/* CONTENT */}
       <ScrollView className={'px-4 py-5'}>
         <selectedTab.component animal={animal} />
       </ScrollView>

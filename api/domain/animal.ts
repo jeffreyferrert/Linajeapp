@@ -13,6 +13,9 @@ import {
 class AnimalAPI implements IAnimalAPI {
   constructor(private animalAdapter: IAnimalAdapter) {}
 
+  async getAnimal(id: number): Promise<AnimalPostOut> {
+    return this.animalAdapter.getAnimal(id);
+  }
   async getAnimals(page?: number): Promise<PagedAnimalPostOut> {
     return this.animalAdapter.getAnimals(page);
   }

@@ -36,6 +36,7 @@ type AnimalPostOut = {
   updated_at: string;
   owner_id: number;
   thumbnail_profile_image_url?: string | null;
+  lineages: LineageData[] | null;
 };
 
 type AnimalProfileImagesSchema = {

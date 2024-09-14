@@ -104,7 +104,7 @@ const Home = () => {
               </Text>
             </View>
 
-            <View>
+            <View className="mb-10">
               {forms.map((animal) => (
                 <CustomAnimalCard key={animal.id} animal={animal} />
               ))}

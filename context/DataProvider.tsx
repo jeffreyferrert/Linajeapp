@@ -8,6 +8,7 @@ interface DataContextProps {
   updateForm: (animalId: number, updatedForm: AnimalPatchIn) => Promise<void>;
   loading: boolean;
   error: Error | null;
+  getAnimalById: (id: number) => Promise<AnimalPostOut | null>;
 }
 
 const DataContext = React.createContext<DataContextProps | undefined>(
@@ -67,9 +68,23 @@ const DataProvider: React.FC = ({ children }) => {
     }
   };
 
+  const getAnimalById = async (id: number): Promise<AnimalPostOut | null> => {
+    setLoading(true);
+    try {
+      const animal = await animalInstance.getAnimal(id);
+      return animal;
+    } catch (err) {
+      console.error('Error al obtener el animal por ID', err);
+      setError(err as Error);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <DataContext.Provider
-      value={{ forms, createForm, updateForm, loading, error }}
+      value={{ forms, createForm, updateForm, loading, error, getAnimalById }}
     >
       {children}
     </DataContext.Provider>

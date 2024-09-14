@@ -9,6 +9,7 @@ import type {
 } from '../../types/animal';
 
 interface IAnimalAPI {
+  getAnimal(id: number): Promise<AnimalPostOut>;
   getAnimals(page?: number): Promise<PagedAnimalPostOut>;
   createAnimal(animal: AnimalPostIn): Promise<AnimalPostOut>;
   updateAnimal(animalId: number, animal: AnimalPatchIn): Promise<AnimalPostOut>;

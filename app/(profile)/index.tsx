@@ -28,13 +28,13 @@ const Profile = () => {
           rightIcon={true}
         />
 
-        <CustomButton
+        {/* <CustomButton
           title={'Términos y Condiciones'}
           handlePress={() => router.push('/terms-conditions')}
           containerStyles={'mb-5 px-5 w-80 mx-auto'}
           textStyles={'text-black'}
           rightIcon={true}
-        />
+        /> */}
 
         <CustomButton
           title={'Contáctanos'}

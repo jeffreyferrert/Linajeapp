@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { animalInstance } from '@/api/loader';
-import type { AnimalPostOut, AnimalPostIn, AnimalPatchIn } from '@/api/domain';
+import type { AnimalPostOut, AnimalPostIn, AnimalPatchIn } from '@/api/domain/';
 
 interface DataContextProps {
   forms: AnimalPostOut[];
@@ -9,6 +9,9 @@ interface DataContextProps {
   loading: boolean;
   error: Error | null;
   getAnimalById: (id: number) => Promise<AnimalPostOut | null>;
+  loadMoreAnimals: () => Promise<void>;
+  loadingMore: boolean;
+  hasMore: boolean;
 }
 
 const DataContext = React.createContext<DataContextProps | undefined>(
@@ -26,29 +29,52 @@ export const useDataContext = () => {
 const DataProvider: React.FC = ({ children }) => {
   const [forms, setForms] = useState<AnimalPostOut[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
+  const [page, setPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(true);
 
-  const fetchAnimals = async () => {
-    setLoading(true);
+  const fetchAnimals = async (pageNumber: number) => {
     try {
-      const data = await animalInstance.getAnimals();
-      setForms(data.items);
+      const data = await animalInstance.getAnimals(pageNumber);
+      // Si es la primera página, reemplazamos los datos; si no, los agregamos
+      if (pageNumber === 1) {
+        setForms(data.items);
+      } else {
+        setForms((prevForms) => [...prevForms, ...data.items]);
+      }
+      // Verificamos si hay más páginas
+      if (data.items.length === 0 || data.items.length > data.count) {
+        setHasMore(false);
+      }
     } catch (err) {
       console.error('Error al obtener animales', err);
       setError(err as Error);
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAnimals();
+    const loadInitialData = async () => {
+      setLoading(true);
+      await fetchAnimals(1);
+      setLoading(false);
+    };
+    loadInitialData();
   }, []);
+
+  const loadMoreAnimals = async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    const nextPage = page + 1;
+    await fetchAnimals(nextPage);
+    setPage(nextPage);
+    setLoadingMore(false);
+  };
 
   const createForm = async (form: AnimalPostIn) => {
     try {
       const newAnimal = await animalInstance.createAnimal(form);
-      setForms((prevForms) => [...prevForms, newAnimal]);
+      setForms((prevForms) => [newAnimal, ...prevForms]);
     } catch (err) {
       console.error('Error al crear animal', err);
     }
@@ -84,7 +110,17 @@ const DataProvider: React.FC = ({ children }) => {
 
   return (
     <DataContext.Provider
-      value={{ forms, createForm, updateForm, loading, error, getAnimalById }}
+      value={{
+        forms,
+        createForm,
+        updateForm,
+        loading,
+        error,
+        getAnimalById,
+        loadMoreAnimals,
+        loadingMore,
+        hasMore,
+      }}
     >
       {children}
     </DataContext.Provider>

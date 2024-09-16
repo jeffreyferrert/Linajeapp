@@ -23,7 +23,7 @@ const profileTabs = [
   { name: 'Información', component: InfoComponent },
   { name: 'Linaje', component: LinajeComponent },
   { name: 'Familia', component: ArbolGenealogicoComponent },
-  { name: 'Atributos', component: AtributosComponent },
+  // { name: 'Atributos', component: AtributosComponent },
 ];
 
 const Animal = () => {

@@ -1,6 +1,7 @@
 import { Text } from 'react-native';
 import { Redirect, Stack } from 'expo-router';
 import { useSession } from '@/context/AuthProvider';
+import DataProvider from '@/context/DataProvider';
 
 const HomeLayout = () => {
   const { session, isLoading } = useSession();
@@ -16,12 +17,14 @@ const HomeLayout = () => {
   }
 
   return (
-    <Stack>
-      <Stack.Screen
-        name={'index'}
-        options={{ headerShown: false, gestureEnabled: false }}
-      />
-    </Stack>
+    <DataProvider>
+      <Stack>
+        <Stack.Screen
+          name={'index'}
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
+      </Stack>
+    </DataProvider>
   );
 };
 

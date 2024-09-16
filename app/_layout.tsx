@@ -7,7 +7,6 @@ import { useSession } from '@/context/AuthProvider';
 
 import { Redirect, Slot } from 'expo-router';
 import { SessionProvider } from '@/context/AuthProvider';
-import DataProvider from '@/context/DataProvider';
 
 import { Text } from 'react-native';
 // SplashScreen.preventAutoHideAsync();
@@ -42,9 +41,5 @@ const AppContent = () => {
     return <Text>Cargando...</Text>;
   }
 
-  return (
-    <DataProvider>
-      <Slot />
-    </DataProvider>
-  );
+  return <Slot />;
 };

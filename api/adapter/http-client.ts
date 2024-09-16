@@ -4,7 +4,7 @@ import { SecureSessionStorage } from './secure-session-adapter';
 import { router } from 'expo-router';
 
 const variables = {
-  API_BASE_URL: 'http://192.168.3.52:8000',
+  API_BASE_URL: 'https://back.linajeapp.com',
   API_TIMEOUT: parseInt(process.env.REACT_APP_API_TIMEOUT || '5000'),
 };
 

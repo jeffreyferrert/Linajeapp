@@ -14,43 +14,43 @@ class AnimalAPI implements IAnimalAPI {
   constructor(private animalAdapter: IAnimalAdapter) {}
 
   async getAnimal(id: number): Promise<AnimalPostOut> {
-    return this.animalAdapter.getAnimal(id);
+    return await this.animalAdapter.getAnimal(id);
   }
   async getAnimals(page?: number): Promise<PagedAnimalPostOut> {
-    return this.animalAdapter.getAnimals(page);
+    return await this.animalAdapter.getAnimals(page);
   }
 
   async createAnimal(animal: AnimalPostIn): Promise<AnimalPostOut> {
-    return this.animalAdapter.createAnimal(animal);
+    return await this.animalAdapter.createAnimal(animal);
   }
 
   async updateAnimal(
     animalId: number,
     animal: AnimalPatchIn,
   ): Promise<AnimalPostOut> {
-    return this.animalAdapter.updateAnimal(animalId, animal);
+    return await this.animalAdapter.updateAnimal(animalId, animal);
   }
 
   async getAnimalImages(
     animalId: number,
   ): Promise<AnimalProfileImagesSchema[]> {
-    return this.animalAdapter.getAnimalImages(animalId);
+    return await this.animalAdapter.getAnimalImages(animalId);
   }
 
   async uploadAnimalImage(animalId: number, files: FormData): Promise<void> {
-    return this.animalAdapter.uploadAnimalImage(animalId, files);
+    return await this.animalAdapter.uploadAnimalImage(animalId, files);
   }
 
   async getLineages(): Promise<LineagePostOut[]> {
-    return this.animalAdapter.getLineages();
+    return await this.animalAdapter.getLineages();
   }
 
   async createLineage(lineage: LineagePostIn): Promise<LineagePostOut> {
-    return this.animalAdapter.createLineage(lineage);
+    return await this.animalAdapter.createLineage(lineage);
   }
 
   async getAnimalByCode(code: string): Promise<AnimalPostOut> {
-    return this.animalAdapter.getAnimalByCode(code);
+    return await this.animalAdapter.getAnimalByCode(code);
   }
 }
 

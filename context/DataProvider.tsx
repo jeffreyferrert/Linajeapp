@@ -1,6 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { animalInstance } from '@/api/loader';
-import type { AnimalPostOut, AnimalPostIn, AnimalPatchIn } from '@/api/domain/';
+import type {
+  AnimalPostOut,
+  AnimalPostIn,
+  AnimalPatchIn,
+  LineagePostOut,
+  LineageData,
+} from '@/api/domain/';
 
 interface DataContextProps {
   forms: AnimalPostOut[];
@@ -9,7 +15,13 @@ interface DataContextProps {
   loading: boolean;
   error: Error | null;
   getAnimalById: (id: number) => Promise<AnimalPostOut | null>;
+  getRosterLineages: () => Promise<LineagePostOut[] | null>;
   loadMoreAnimals: () => Promise<void>;
+  updateAnimalLineage: (
+    animalId: number,
+    selectedLineages: string[],
+    totalPercentage: number,
+  ) => Promise<void>;
   loadingMore: boolean;
   hasMore: boolean;
 }
@@ -26,7 +38,9 @@ export const useDataContext = () => {
   return context;
 };
 
-const DataProvider: React.FC = ({ children }) => {
+const DataProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [forms, setForms] = useState<AnimalPostOut[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -108,6 +122,45 @@ const DataProvider: React.FC = ({ children }) => {
     }
   };
 
+  const getRosterLineages = async () => {
+    setLoading(true);
+    try {
+      const lineages = await animalInstance.getLineages();
+      return lineages;
+    } catch (err) {
+      console.error('Error al obtener los linajes', err);
+      setError(err as Error);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateAnimalLineage = async (
+    animalId: number,
+    selectedLineages: string[],
+    totalPercentage: number,
+  ): Promise<void> => {
+    if (totalPercentage > 100) {
+      throw new Error('El porcentaje total no puede exceder el 100%');
+    }
+    setLoading(true);
+    // Mapea los linajes seleccionados a la estructura necesaria para el API
+    const lineages: LineageData[] = selectedLineages.map((linaje) => ({
+      lineage_id: parseInt(linaje), // Aquí se asume que el linaje es un ID, ajustar según tu estructura de datos
+      percentage: 100 / selectedLineages.length, // Distribuye el porcentaje de manera uniforme, ajustar según necesidad
+    }));
+    try {
+      // Llama al método de la API para actualizar el animal
+      await animalInstance.updateAnimal(animalId, { lineages });
+    } catch (err) {
+      console.error('Error al actualizar linajes del animal', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <DataContext.Provider
       value={{
@@ -117,8 +170,10 @@ const DataProvider: React.FC = ({ children }) => {
         loading,
         error,
         getAnimalById,
+        getRosterLineages,
         loadMoreAnimals,
         loadingMore,
+        updateAnimalLineage,
         hasMore,
       }}
     >

@@ -77,4 +77,5 @@ export type {
   LineagePostIn,
   LineagePostOut,
   PagedAnimalPostOut,
+  LineageData,
 };

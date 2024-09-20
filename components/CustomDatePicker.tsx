@@ -51,7 +51,9 @@ const CustomDatePicker = ({
         onPress={() => setShow(true)}
         className={'flex flex-row items-center w-full'}
       >
-        <Text className={`flex-grow ${value ? 'text-black' : 'text-gray-500'}`}>
+        <Text
+          className={`flex-grow ${value ? 'text-black' : 'text-gray-500'} mt-2`}
+        >
           {value || 'Seleccionar fecha'}
         </Text>
         {icons.calendar}

@@ -5,14 +5,12 @@ import DataProvider from '@/context/DataProvider';
 
 const HomeLayout = () => {
   const { session, isLoading } = useSession();
-  console.log('HomeLayout', session, isLoading);
 
   if (isLoading) {
     return <Text>Cargando...</Text>;
   }
 
   if (!session) {
-    console.log('Redirecting to sign-in');
     return <Redirect href="/sign-in" />;
   }
 

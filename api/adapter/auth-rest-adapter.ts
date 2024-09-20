@@ -29,9 +29,7 @@ class AuthRestAdapter implements IAuthAdapter {
   }
 
   async logout(): Promise<boolean> {
-    console.log('logout1');
     const response = await this.httpClient.post('auth/logout/', {});
-    console.log('logout2', response);
     return response.status === 204;
   }
 

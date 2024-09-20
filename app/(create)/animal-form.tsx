@@ -1,92 +1,188 @@
-import { useState } from 'react';
-import {
-  FlatList,
-  Pressable,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import CustomFormField from '@/components/CustomFormField';
 import { AntDesign, Feather, Foundation } from '@expo/vector-icons';
 import CustomButton from '@/components/CustomButton';
 import CustomSeparator from '@/components/CustomSeparator';
+import CustomDatePicker from '@/components/CustomDatePicker';
+import type { Brood } from '@/types/animalExtraTypes';
+import { useAutoAPI } from '@/hooks/useAutoAPI';
+import { animalInstance } from '@/api/loader';
+import { AnimalPostOut } from '@/api/domain';
 
 type AnimalFormProps = {
-  form: any;
-  formIndex: number;
-  handleSave: (updatedForm: any) => void;
+  brood: Brood;
+  broodsIndex: number;
+  handleBroodChange: (index: number, updatedBrood: Brood) => void;
+  handleDelete: (animalIndex: number) => void;
 };
 
-const AnimalForm = ({ form, formIndex, handleSave }: AnimalFormProps) => {
-  const [localForm, setLocalForm] = useState(form);
+const AnimalForm = ({
+  brood,
+  broodsIndex,
+  handleBroodChange,
+  handleDelete,
+}: AnimalFormProps) => {
+  const { loading, getAnimalByCode } = useAutoAPI(animalInstance);
 
-  const handleLocalChange = (field, value, animalIndex = null) => {
-    if (animalIndex !== null) {
-      const updatedAnimals = [...localForm.animals];
-      updatedAnimals[animalIndex] = {
-        ...updatedAnimals[animalIndex],
-        [field]: value,
+  const handleLocalChange = <K extends keyof Brood>(
+    field: K, // Aseguramos que field sea una clave válida de Brood
+    value: Brood[K], // Aseguramos que value sea del tipo correcto para esa clave
+    offspringIndex: number | null = null,
+  ) => {
+    let updatedBrood: Brood = { ...brood };
+
+    if (offspringIndex !== null) {
+      const updatedoffspring = [...brood.offsprings];
+      updatedoffspring[offspringIndex] = {
+        ...updatedoffspring[offspringIndex],
+        [field]: value, // Aquí estamos asegurando que field sea una clave válida de Brood
       };
-      setLocalForm((prev) => ({
-        ...prev,
-        animals: updatedAnimals,
-      }));
+      updatedBrood.offsprings = updatedoffspring;
     } else {
-      setLocalForm((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
+      updatedBrood[field] = value; // Esto ya no causará error porque field y value están bien tipados
+    }
+
+    handleBroodChange(broodsIndex, updatedBrood);
+  };
+
+  const clear_blank_offsprings = () => {
+    const updatedOffsprings = brood.offsprings.filter(
+      (offspring) => offspring.code !== '' || offspring.sex !== '',
+    );
+
+    // Si se eliminan todos los offsprings, agregar uno vacío
+    if (updatedOffsprings.length === 0) {
+      updatedOffsprings.push({ code: '', sex: '' });
+    }
+
+    return updatedOffsprings;
+  };
+
+  const validateBrood = async (
+    offspringsToValidate: typeof brood.offsprings,
+  ) => {
+    const validBirthdate = brood.birthdate !== '';
+    const validOffsprings = offspringsToValidate.every(
+      (offspring) => offspring.code !== '' && offspring.sex !== '',
+    );
+    return validBirthdate && validOffsprings;
+  };
+
+  const saveAnimalForm = async () => {
+    let dbMotherData: AnimalPostOut | null = null;
+    let dbFatherData: AnimalPostOut | null = null;
+    if (brood.father_code !== '') {
+      try {
+        dbFatherData = await getAnimalByCode(brood.father_code);
+      } catch (error) {
+        Alert.alert('Error', 'La placa ' + brood.father_code + ' no existe');
+        return;
+      }
+    }
+    if (brood.mother_code !== '') {
+      try {
+        dbMotherData = await getAnimalByCode(brood.mother_code);
+      } catch (error) {
+        Alert.alert('Error', 'La placa ' + brood.mother_code + ' no existe');
+        return;
+      }
+    }
+    try {
+      const cleanedOffsprings = clear_blank_offsprings();
+
+      const validate = await validateBrood(cleanedOffsprings);
+
+      if (!validate) {
+        return Alert.alert('Error', 'Por favor, completa todos los campos');
+      }
+
+      const updatedBrood = {
+        ...brood,
+        mother_id: dbMotherData?.id,
+        father_id: dbFatherData?.id,
+        offsprings: cleanedOffsprings,
+        isSaved: true,
+      };
+
+      handleBroodChange(broodsIndex, updatedBrood);
+    } catch (error) {
+      console.error('Error al guardar el animal:', error);
     }
   };
 
-  const saveForm = () => {
-    const updatedForm = { ...localForm, isSaved: true };
-    setLocalForm(updatedForm);
-    handleSave(updatedForm);
+  const handleOffspringChange = (
+    field: keyof Brood['offsprings'][0], // Limitado a 'code' y 'sex'
+    value: Brood['offsprings'][0][typeof field],
+    offspringIndex: number,
+  ) => {
+    let updatedBrood: Brood = { ...brood };
+    const updatedoffspring = [...brood.offsprings];
+    updatedoffspring[offspringIndex] = {
+      ...updatedoffspring[offspringIndex],
+      [field]: value,
+    };
+    updatedBrood.offsprings = updatedoffspring;
+    handleBroodChange(broodsIndex, updatedBrood);
   };
 
-  if (localForm.isSaved) {
+  const deleteAnimalForm = () => {
+    handleDelete(broodsIndex);
+  };
+
+  if (brood.isSaved) {
     return (
       <View className={'mx-4'}>
         <Pressable
-          onPress={() => setLocalForm((prev) => ({ ...prev, isSaved: false }))}
+          onPress={() =>
+            handleBroodChange(broodsIndex, {
+              ...brood,
+              isSaved: false,
+            })
+          }
           className={'flex-row justify-end pb-3 pr-2 items-center'}
         >
           <Feather name="edit" size={20} color="blue" />
-          <Text> Editar Camada</Text>
+          <Text> Editar Animal</Text>
         </Pressable>
 
         <View className={'bg-white p-5 rounded-xl'}>
           <Text className={'text-lg font-bold'}>
-            Detalles de la camada Nº{formIndex + 1}
+            Detalles del Animal Nº{broodsIndex + 1}
           </Text>
 
           <CustomSeparator sx={'my-3'} />
 
           <View className={'flex-row justify-between'}>
-            <Text className={'font-semibold'}>Nª de placa Padre</Text>
-            <Text>{localForm.father}</Text>
+            <Text className={'font-semibold'}>Placa Padre</Text>
+            <Text>{brood.father_code || 'No asignado'}</Text>
           </View>
 
           <View className={'flex-row justify-between'}>
-            <Text className={'font-semibold'}>Nª de placa Madre</Text>
-            <Text>{localForm.mother}</Text>
+            <Text className={'font-semibold'}>Placa Madre</Text>
+            <Text>{brood.mother_code || 'No asignado'}</Text>
           </View>
 
           <View className={'flex-row justify-between'}>
-            <Text className={'font-semibold'}>Edad</Text>
-            <Text>{localForm.birthDate}</Text>
+            <Text className={'font-semibold'}>Fecha de Nacimiento</Text>
+            <Text>{brood.birthdate}</Text>
           </View>
 
           <View>
-            <Text className={'font-semibold'}>Placa de la camada</Text>
-            {localForm.animals.map((animal, index) => (
+            <Text className={'font-semibold'}>Placas de los animales</Text>
+            {brood.offsprings.map((animal, index) => (
               <View key={index} className={'flex-row justify-between'}>
-                <Text>{animal.plaque}</Text>
-                <Text>{animal.sex}</Text>
+                <Text>{animal.code}</Text>
+                {/* Cambiar male y female por Hembra y Macho */}
+                <Text>{animal.sex === 'male' ? 'Macho' : 'Hembra'}</Text>
               </View>
             ))}
           </View>
+          <TouchableOpacity onPress={deleteAnimalForm} className={'mt-2'}>
+            <Text style={{ color: 'red', textAlign: 'center' }}>
+              Eliminar Animal
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <CustomSeparator />
@@ -95,66 +191,70 @@ const AnimalForm = ({ form, formIndex, handleSave }: AnimalFormProps) => {
   }
 
   return (
-    <View key={formIndex} className={''}>
-      <View className={'flex flex-row'}>
+    <View key={broodsIndex} className={''}>
+      <View className={'flex flex-row  justify-between mx-3'}>
         <CustomFormField
           title={'Placa padre'}
           placeholder={'Placa padre'}
-          value={localForm.father}
-          handleChange={(value) => handleLocalChange('father', value)}
+          value={brood.father_code}
+          handleChange={(value) => handleLocalChange('father_code', value)}
           otherStyles={'w-36 bg-white'}
         />
 
         <CustomFormField
           title={'Placa madre'}
           placeholder={'Placa madre'}
-          value={localForm.mother}
-          handleChange={(value) => handleLocalChange('mother', value)}
+          value={brood.mother_code}
+          handleChange={(value) => handleLocalChange('mother_code', value)}
           otherStyles={'w-36 bg-white'}
         />
       </View>
 
-      <View className={'pt-3'}>
-        <CustomFormField
-          title={'Fecha de nacimiento'}
-          placeholder={'Fecha de nacimiento'}
-          value={localForm.birthDate}
-          handleChange={(value) => handleLocalChange('birthDate', value)}
-          otherStyles={'bg-white w-80'}
+      <View className={'pt-3 '}>
+        <CustomDatePicker
+          title="Nacimiento"
+          handleChange={(value) => handleLocalChange('birthdate', value)}
+          otherStyles={'w-80 bg-white'}
+          value={brood.birthdate}
         />
       </View>
 
-      <View className={'flex flex-col'}>
-        {localForm.animals.map((animal, animalIndex) => (
+      <View className={'flex flex-col mx-auto'}>
+        {brood.offsprings.map((offspring, offspringIndex) => (
           <PlaqueComponent
-            key={animalIndex}
-            animal={animal}
-            formIndex={formIndex}
-            animalIndex={animalIndex}
-            handleChangeValue={handleLocalChange}
+            key={offspringIndex}
+            offspring={offspring}
+            offspringIndex={offspringIndex}
+            handleChangeValue={handleOffspringChange}
           />
         ))}
       </View>
 
       <TouchableOpacity
         onPress={() => {
-          setLocalForm((prev) => ({
-            ...prev,
-            animals: [
-              ...prev.animals,
-              { plaque: '', sex: '', linaje: {}, status: '' },
+          handleBroodChange(broodsIndex, {
+            ...brood,
+            offsprings: [
+              ...brood.offsprings,
+              {
+                code: '',
+                sex: '',
+              },
             ],
-          }));
+          });
         }}
         className={'flex flex-row my-3 px-6 items-center'}
       >
         <AntDesign name="pluscircleo" size={18} color="blue" />
-        <Text className={'text-base font-montserrat'}> Agregar otra placa</Text>
+        <Text className={'text-base font-montserrat'}>
+          {' '}
+          Agregar otro animal
+        </Text>
       </TouchableOpacity>
 
       <CustomButton
-        title={'Guardar'}
-        handlePress={saveForm}
+        title={(loading && 'Guardando...') || 'Guardar'}
+        handlePress={saveAnimalForm}
         containerStyles={'bg-primary w-80 mx-auto mt-3'}
         textStyles={'text-white'}
       />
@@ -166,29 +266,41 @@ const AnimalForm = ({ form, formIndex, handleSave }: AnimalFormProps) => {
 
 export default AnimalForm;
 
-const PlaqueComponent = ({ animal, animalIndex, handleChangeValue }) => (
+const PlaqueComponent = ({
+  offspring,
+  offspringIndex,
+  handleChangeValue,
+}: {
+  offspring: Brood['offsprings'][0];
+  offspringIndex: number;
+  handleChangeValue: (
+    field: keyof Brood['offsprings'][0],
+    value: any,
+    offspringIndex: number,
+  ) => void;
+}) => (
   <View className={'flex-row justify-between pt-3 items-center mx-auto'}>
     <CustomFormField
       title={'Nº de placa'}
       placeholder={'Nº de placa'}
-      value={animal.plaque}
-      handleChange={(value) => handleChangeValue('plaque', value, animalIndex)}
+      value={offspring.code}
+      handleChange={(value) => handleChangeValue('code', value, offspringIndex)}
       otherStyles={'w-40 bg-white'}
     />
 
     <Pressable
-      onPress={() => handleChangeValue('sex', 'male', animalIndex)}
+      onPress={() => handleChangeValue('sex', 'male', offspringIndex)}
       className={`w-16 h-16 ${
-        animal.sex === 'male' ? 'bg-blue-200' : 'bg-white'
+        offspring.sex === 'male' ? 'bg-blue-200' : 'bg-white'
       } p-2 rounded-2xl justify-center items-center mx-3`}
     >
       <Foundation name="male-symbol" size={30} color="darkblue" />
     </Pressable>
 
     <Pressable
-      onPress={() => handleChangeValue('sex', 'female', animalIndex)}
+      onPress={() => handleChangeValue('sex', 'female', offspringIndex)}
       className={`w-16 h-16 ${
-        animal.sex === 'female' ? 'bg-red-200' : 'bg-white'
+        offspring.sex === 'female' ? 'bg-red-200' : 'bg-white'
       } p-2 rounded-2xl justify-center items-center`}
     >
       <Foundation name="female-symbol" size={30} color="fuchsia" />

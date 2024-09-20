@@ -40,7 +40,6 @@ export function SessionProvider({ children }: PropsWithChildren) {
         signOut: async () => {
           const logoutResponse = await authInstance.logout();
           if (logoutResponse) {
-            console.log('logoutResponse', logoutResponse);
             setSession(null);
           }
         },

@@ -121,7 +121,6 @@ const Home = () => {
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => <CustomAnimalCard animal={item} />}
             onEndReached={() => {
-              console.log('onEndReached');
               if (hasMore) {
                 loadMoreAnimals();
               }

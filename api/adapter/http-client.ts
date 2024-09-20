@@ -3,8 +3,9 @@ import { SessionAdapter } from './session-adapter';
 import { SecureSessionStorage } from './secure-session-adapter';
 import { router } from 'expo-router';
 
+// TODO: Move to .env
 const variables = {
-  API_BASE_URL: 'https://back.linajeapp.com',
+  API_BASE_URL: 'http://192.168.3.52:8000',
   API_TIMEOUT: parseInt(process.env.REACT_APP_API_TIMEOUT || '5000'),
 };
 
@@ -29,7 +30,6 @@ class HttpClient {
       const requiresAuth = config.requiresAuth ?? true;
 
       if (requiresAuth) {
-        console.log('Requiere autenticación');
         const token = await this.secureSessionAdapter.getValue('token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;

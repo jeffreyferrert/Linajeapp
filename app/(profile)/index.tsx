@@ -11,6 +11,7 @@ const Profile = () => {
   if (!session) {
     return <Redirect href="/sign-in" />;
   }
+
   return (
     <SafeAreaView className={'bg-gray-200 h-full px-4 py-10'}>
       <ScrollView>
@@ -23,7 +24,7 @@ const Profile = () => {
         <CustomButton
           title={'Información Personal'}
           handlePress={() => router.push('/personal-info')}
-          containerStyles={'mb-5 px-5 w-80 mx-auto'}
+          containerStyles={'mb-5 px-5 w-80 mx-auto bg-white'}
           textStyles={'text-black'}
           rightIcon={true}
         />
@@ -39,8 +40,8 @@ const Profile = () => {
         <CustomButton
           title={'Contáctanos'}
           handlePress={() => router.push('/contact-us')}
-          containerStyles={'mb-5 px-5 w-80 mx-auto'}
-          textStyles={'text-black'}
+          containerStyles={'mb-5 px-5 w-80 mx-auto bg-white'}
+          textStyles={'text-black '}
           rightIcon={true}
         />
 

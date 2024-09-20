@@ -74,7 +74,6 @@ class AnimalRestAdapter implements IAnimalAdapter {
   }
 
   async getAnimalByCode(code: string): Promise<AnimalPostOut> {
-    console.log('code', code);
     const response = await this.httpClient.get(
       'animals/animal',
       { code },

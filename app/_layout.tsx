@@ -35,8 +35,6 @@ export default RootLayout;
 const AppContent = () => {
   const { isLoading, session } = useSession();
 
-  console.log('AppContent', isLoading);
-
   if (isLoading) {
     return <Text>Cargando...</Text>;
   }

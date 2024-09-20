@@ -24,15 +24,26 @@ const CustomButton = ({
       onPress={handlePress}
       activeOpacity={0.7}
       disabled={disabled}
-      className={`bg-secondary rounded-xl min-h-[62px] flex flex-row justify-center items-center ${containerStyles}`}
+      className={`rounded-xl min-h-[62px] flex flex-row justify-center items-center ${
+        disabled ? 'bg-[#a9b4c2]' : 'bg-primary'
+      } ${containerStyles}`}
     >
-      <Text className={`text-primary font-semibold text-lg ${textStyles}`}>
+      <Text
+        className={`font-semibold text-lg ${
+          disabled ? 'text-gray-500' : 'text-primary'
+        } ${textStyles}`}
+      >
         {title}
       </Text>
 
       {rightIcon && (
-        <Pressable onPress={() => router.back()} className={' ml-auto'}>
-          <AntDesign name="right" size={25} color="black" />
+        <Pressable onPress={() => router.back()} className={'ml-auto'}>
+          <AntDesign
+            name="right"
+            size={25}
+            color={disabled ? '#d1d5db' : 'black'}
+            className={`${textStyles}`}
+          />
         </Pressable>
       )}
     </TouchableOpacity>

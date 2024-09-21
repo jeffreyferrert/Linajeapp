@@ -20,6 +20,25 @@ class AnimalAPI implements IAnimalAPI {
     return await this.animalAdapter.getAnimals(page);
   }
 
+  async filterAnimals(
+    page?: number,
+    start_date?: string,
+    end_date?: string,
+    search?: string,
+    lineages_id?: number[],
+  ): Promise<PagedAnimalPostOut> {
+    if ((start_date && !end_date) || (!start_date && end_date)) {
+      throw new Error('Start date and end date must be provided together');
+    }
+    return await this.animalAdapter.filterAnimals(
+      page,
+      start_date,
+      end_date,
+      search,
+      lineages_id,
+    );
+  }
+
   async createAnimal(animal: AnimalPostIn): Promise<AnimalPostOut> {
     return await this.animalAdapter.createAnimal(animal);
   }

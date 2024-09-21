@@ -23,6 +23,23 @@ class AnimalRestAdapter implements IAnimalAdapter {
     return response.data;
   }
 
+  async filterAnimals(
+    page: number = 1,
+    start_date: string,
+    end_date: string,
+    search: string,
+    lineages_id: number[],
+  ): Promise<PagedAnimalPostOut> {
+    const response = await this.httpClient.get('animals/filter-animals/', {
+      page,
+      start_date,
+      end_date,
+      search,
+      lineages_id,
+    });
+    return response.data;
+  }
+
   async createAnimal(animal: AnimalPostIn): Promise<AnimalPostOut> {
     const response = await this.httpClient.post('animals/', animal, true);
     return response.data;

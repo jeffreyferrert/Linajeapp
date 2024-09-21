@@ -23,14 +23,12 @@ export type IconName =
 type FilterCardProps = {
   title: string;
   icon: IconName;
+  onPress: () => void;
 };
 
-const FilterCard = ({ title, icon }: FilterCardProps) => {
-  // @ts-ignore
+const FilterCard = ({ title, icon, onPress }: FilterCardProps) => {
   return (
-    <TouchableOpacity
-      onPress={() => Alert.alert('Filter', `Filtering by ${title}`)}
-    >
+    <TouchableOpacity onPress={onPress}>
       <View className={'flex-row items-center bg-white p-1 mr-2 rounded-md'}>
         <AntDesign name={icon} size={20} color="darkblue" />
         <Text> {title}</Text>

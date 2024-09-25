@@ -1,11 +1,13 @@
 import { Text, View, StyleSheet } from 'react-native';
-import type { AnimalPostOut } from '@/api/domain';
+import type { AnimalFamily, AnimalPostOut } from '@/api/domain';
 
 type InfoComponentProps = {
   animal: AnimalPostOut;
+  family: AnimalFamily | null;
 };
 
-const InfoComponent = ({ animal }: InfoComponentProps) => {
+const InfoComponent = ({ animal, family }: InfoComponentProps) => {
+  const [mother, father] = [family?.mother, family?.father];
   return (
     <View>
       <View style={styles.container}>
@@ -33,13 +35,13 @@ const InfoComponent = ({ animal }: InfoComponentProps) => {
           <View style={styles.row}>
             <Text style={styles.label}>Madre</Text>
             <Text style={styles.value}>
-              {animal.mother ? `Código ${animal.mother}` : 'No disponible'}
+              {mother ? `Código ${mother?.code}` : 'No disponible'}
             </Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Padre</Text>
             <Text style={styles.value}>
-              {animal.father ? `Código ${animal.father}` : 'No disponible'}
+              {father ? `Código ${father?.code}` : 'No disponible'}
             </Text>
           </View>
         </View>

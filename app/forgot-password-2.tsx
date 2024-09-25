@@ -18,7 +18,6 @@ const ForgotPassword2 = () => {
 
   const submitForm = () => {
     router.push('../(home)');
-    console.log('Submit form');
   };
 
   const handleChange = (index: number, value: string) => {

@@ -2,51 +2,29 @@ import { ScrollView, Text, View } from 'react-native';
 import CustomArbolAnimalCard from '@/components/CustomArbolAnimalCard';
 import { useState, useEffect } from 'react';
 import { useDataContext } from '@/context/DataProvider';
-import type { AnimalPostOut } from '@/api/domain';
+import type { AnimalFamily, AnimalPostOut } from '@/api/domain';
 
 type ArbolGenealogicoComponentProps = {
   animal: AnimalPostOut;
+  family: AnimalFamily | null;
 };
 
 const ArbolGenealogicoComponent = ({
   animal,
+  family,
 }: ArbolGenealogicoComponentProps) => {
-  const { getAnimalById, forms } = useDataContext();
   const [padre, setPadre] = useState<AnimalPostOut | null>(null);
   const [madre, setMadre] = useState<AnimalPostOut | null>(null);
   const [hermanos, setHermanos] = useState<AnimalPostOut[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const fetchFamilia = async () => {
-    setLoading(true);
-    try {
-      const [padreData, madreData] = await Promise.all([
-        animal.father ? getAnimalById(animal.father) : null,
-        animal.mother ? getAnimalById(animal.mother) : null,
-      ]);
-
-      setPadre(padreData || null);
-      setMadre(madreData || null);
-
-      if (animal.father && animal.mother) {
-        const hermanosData = forms.filter(
-          (form) =>
-            form.father === animal.father &&
-            form.mother === animal.mother &&
-            form.id !== animal.id,
-        );
-        setHermanos(hermanosData);
-      }
-    } catch (err) {
-      console.error('Error al obtener la familia del animal', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchFamilia();
-  }, [animal]);
+    console.log('family', family);
+    setPadre(family?.father || null);
+    setMadre(family?.mother || null);
+    setHermanos(family?.siblings || []);
+    setLoading(false);
+  }, []);
 
   return (
     <View className={'mb-5'}>
@@ -57,6 +35,9 @@ const ArbolGenealogicoComponent = ({
           {padre ? (
             <CustomArbolAnimalCard
               title={'Padre'}
+              thumbnail_profile_image_url={
+                padre.thumbnail_profile_image_url || ''
+              }
               code={padre.code}
               id={padre.id}
             />
@@ -66,6 +47,9 @@ const ArbolGenealogicoComponent = ({
           {madre ? (
             <CustomArbolAnimalCard
               title={'Madre'}
+              thumbnail_profile_image_url={
+                madre.thumbnail_profile_image_url || ''
+              }
               code={madre.code}
               id={madre.id}
             />
@@ -93,6 +77,9 @@ const ArbolGenealogicoComponent = ({
             hermanos.map((hermano, index) => (
               <CustomArbolAnimalCard
                 key={index}
+                thumbnail_profile_image_url={
+                  hermano.thumbnail_profile_image_url || ''
+                }
                 title={`Hermano ${index + 1}`}
                 code={hermano.code}
                 id={hermano.id}

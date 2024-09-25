@@ -5,21 +5,15 @@ import { Entypo } from '@expo/vector-icons';
 type CustomSearchBarProps = {
   placeholder: string;
   value: string;
+  handleSearch: (query: string) => void;
 };
 
-const CustomSearchBar = ({ placeholder, value }: CustomSearchBarProps) => {
+const CustomSearchBar = ({
+  placeholder,
+  value,
+  handleSearch,
+}: CustomSearchBarProps) => {
   const [query, setQuery] = useState(value || '');
-
-  const handleSearch = () => {
-    if (query === '') {
-      Alert.alert(
-        'Missing Query',
-        'Please input something to search results across database',
-      );
-      return;
-    }
-    Alert.alert('Search', `Searching by ${query}`);
-  };
 
   return (
     <View
@@ -32,11 +26,19 @@ const CustomSearchBar = ({ placeholder, value }: CustomSearchBarProps) => {
         placeholder={placeholder}
         placeholderTextColor="#CDCDE0"
         onChangeText={(text) => setQuery(text)}
-        onSubmitEditing={handleSearch}
+        onSubmitEditing={() => handleSearch(query)}
         className={'w-full'}
       />
 
-      <TouchableOpacity onPress={handleSearch}>
+      <TouchableOpacity
+        onPress={() => {
+          if (query === '') {
+            Alert.alert('Error', 'Ingrese un valor para buscar');
+            return;
+          }
+          handleSearch(query);
+        }}
+      >
         <Entypo name="magnifying-glass" size={24} color="gray" />
       </TouchableOpacity>
     </View>

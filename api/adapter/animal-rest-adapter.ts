@@ -8,6 +8,7 @@ import {
   LineagePostIn,
   LineagePostOut,
   PagedAnimalPostOut,
+  AnimalFamily,
 } from '../domain/types/animal';
 
 class AnimalRestAdapter implements IAnimalAdapter {
@@ -20,6 +21,34 @@ class AnimalRestAdapter implements IAnimalAdapter {
 
   async getAnimals(page: number = 1): Promise<PagedAnimalPostOut> {
     const response = await this.httpClient.get('animals/', { page }, true);
+    return response.data;
+  }
+
+  async getFamily(id: number): Promise<AnimalFamily> {
+    const response = await this.httpClient.get(
+      `animals/family/${id}`,
+      null,
+      true,
+    );
+    return response.data;
+  }
+
+  async filterAnimals(
+    page: number = 1,
+    start_date: string,
+    end_date: string,
+    search: string,
+    lineages_id: number[],
+    sex: 'M' | 'F',
+  ): Promise<PagedAnimalPostOut> {
+    const response = await this.httpClient.get('animals/filter-animals/', {
+      page,
+      start_date,
+      end_date,
+      search,
+      lineages_id,
+      sex,
+    });
     return response.data;
   }
 

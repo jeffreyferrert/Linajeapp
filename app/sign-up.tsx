@@ -2,7 +2,6 @@ import CustomHeader from '@/components/CustomHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView, Text, View } from 'react-native';
 import { useState } from 'react';
-import { router } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
 import CustomFormField from '@/components/CustomFormField';
 import CustomDatePicker from '@/components/CustomDatePicker';
@@ -10,7 +9,6 @@ import { authInstance } from '@/api/loader';
 import { CountryCode } from 'libphonenumber-js';
 import { useSession } from '@/context/AuthProvider';
 import { Redirect } from 'expo-router';
-
 
 const SignUp = () => {
   const { signIn, session } = useSession();
@@ -42,9 +40,7 @@ const SignUp = () => {
         country: form.country,
         password: form.password,
       });
-      console.log(user);
       await signIn({ email: form.email, password: form.password });
-      console.log('Logged in');
       return <Redirect href="/(home)" />;
     } catch (error) {
     } finally {

@@ -20,8 +20,8 @@ type CustomFormFieldProps = {
   handleChange: (value: string) => void;
   otherStyles?: string;
   type?: string;
+  readOnly?: boolean; // Añadir prop para readOnly
 };
-
 const CustomFormField = ({
   title,
   placeholder,
@@ -29,28 +29,29 @@ const CustomFormField = ({
   handleChange,
   otherStyles,
   type = 'text',
+  readOnly = false,
 }: CustomFormFieldProps) => {
   const [isFocus, setIsFocus] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const inputRef = useRef<TextInput>(null); // Crear una referencia para el TextInput
+  const inputRef = useRef<TextInput>(null);
 
   return (
-    <TouchableWithoutFeedback onPress={() => inputRef.current?.focus()}>
+    <TouchableWithoutFeedback
+      onPress={() => !readOnly && inputRef.current?.focus()}
+    >
       <View
-        className={`w-80 bg-gray-200 h-14 px-4 rounded-lg mx-auto focus:border-2 border-primary flex flex-row  ${otherStyles}`}
+        className={`w-80 bg-gray-200 h-14 px-4 rounded-lg mx-auto ${
+          readOnly ? 'border-2 border-gray-400' : ''
+        } flex flex-row  ${otherStyles}`}
       >
         {(isFocus || value !== '') && (
-          <Text
-            className={
-              'absolute top-0 px-4 py-1 text-xs text-gray-500 font-semibold'
-            }
-          >
+          <Text className="absolute top-0 px-4 py-1 text-xs text-gray-500 font-semibold">
             {title}
           </Text>
         )}
 
         <TextInput
-          ref={inputRef} // Asignar la referencia al TextInput
+          ref={inputRef}
           className={isFocus || value !== '' ? 'h-16' : 'h-14'}
           value={value}
           placeholder={isFocus ? '' : placeholder}
@@ -59,9 +60,10 @@ const CustomFormField = ({
           onFocus={() => setIsFocus(true)}
           onBlur={() => setIsFocus(false)}
           secureTextEntry={type === 'password' && !showPassword}
+          editable={!readOnly} // Deshabilitar si es readOnly
         />
 
-        {type === 'password' && (
+        {type === 'password' && !readOnly && (
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
             className={'ml-auto my-auto'}

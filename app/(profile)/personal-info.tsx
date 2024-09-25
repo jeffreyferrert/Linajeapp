@@ -5,8 +5,7 @@ import { useAutoAPI } from '@/hooks/useAutoAPI';
 import { userInstance } from '@/api/loader';
 import { useEffect, useState } from 'react';
 import type { User } from '@/api/domain';
-import CustomFormField from '@/components/CustomFormField'; // Asegúrate de que el path sea correcto
-import CustomSeparator from '@/components/CustomSeparator';
+import CustomFormField from '@/components/CustomFormField';
 
 const PersonalInformation = () => {
   const { loading, results, getCurrentUser } = useAutoAPI(userInstance);
@@ -14,11 +13,10 @@ const PersonalInformation = () => {
 
   useEffect(() => {
     getCurrentUser();
-  }, [getCurrentUser]); // Agregar dependencia para evitar loop infinito
+  }, [getCurrentUser]);
 
   useEffect(() => {
     if (results?.getCurrentUser) {
-      console.log(results.getCurrentUser);
       setUser(results.getCurrentUser);
     }
   }, [results]);

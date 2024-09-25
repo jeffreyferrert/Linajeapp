@@ -39,6 +39,13 @@ type AnimalPostOut = {
   lineages: LineageData[] | null;
 };
 
+type AnimalFamily = {
+  mother: AnimalPostOut | null;
+  father: AnimalPostOut | null;
+  siblings: AnimalPostOut[];
+  children: AnimalPostOut[];
+};
+
 type AnimalProfileImagesSchema = {
   image_url: string;
   id?: number | null;
@@ -62,6 +69,7 @@ type LineagePostOut = {
 type LineageData = {
   lineage_id: number;
   percentage: number;
+  name: string;
 };
 
 type PagedAnimalPostOut = {
@@ -78,4 +86,5 @@ export type {
   LineagePostOut,
   PagedAnimalPostOut,
   LineageData,
+  AnimalFamily,
 };

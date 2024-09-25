@@ -13,11 +13,12 @@ import { useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect } from 'react';
 import InfoComponent from '@/app/(animal)/InfoComponent';
-import AtributosComponent from '@/app/(animal)/AtributosComponent';
+// import AtributosComponent from '@/app/(animal)/AtributosComponent';
 import LinajeComponent from '@/app/(animal)/LinajeComponent';
 import ArbolGenealogicoComponent from '@/app/(animal)/ArbolGenealogicoComponent';
-import { useDataContext } from '@/context/DataProvider';
-import type { AnimalPostOut } from '@/api/domain';
+import type { AnimalPostOut, AnimalFamily } from '@/api/domain';
+import { useAutoAPI } from '@/hooks/useAutoAPI';
+import { animalInstance } from '@/api/loader';
 
 const profileTabs = [
   { name: 'Información', component: InfoComponent },
@@ -28,14 +29,18 @@ const profileTabs = [
 
 const Animal = () => {
   const { id } = useLocalSearchParams();
-  const { getAnimalById, loading, error } = useDataContext();
+
+  const { loading, error, getAnimal } = useAutoAPI(animalInstance);
   const [animal, setAnimal] = useState<AnimalPostOut | null>(null);
+  const [family, setFamily] = useState<AnimalFamily | null>(null);
   const [selectedTab, setSelectedTab] = useState(profileTabs[0]);
 
   useEffect(() => {
     const fetchAnimal = async () => {
-      const data = await getAnimalById(Number(id));
+      const data = await getAnimal(Number(id));
       setAnimal(data);
+      const familyData = await animalInstance.getFamily(Number(id));
+      setFamily(familyData);
     };
     fetchAnimal();
   }, [id]);
@@ -98,7 +103,7 @@ const Animal = () => {
             Su estado:{' '}
             <Text
               className={`${
-                animal.status === 'Vivo' ? 'text-green-500' : 'text-red-500'
+                animal.status === 'alive' ? 'text-green-500' : 'text-red-500'
               }`}
             >
               {animal.status}
@@ -128,7 +133,7 @@ const Animal = () => {
 
       {/* CONTENT */}
       <ScrollView className={'px-4 py-5'}>
-        <selectedTab.component animal={animal} />
+        <selectedTab.component animal={animal} family={family} />
       </ScrollView>
       <StatusBar style={'dark'} />
     </SafeAreaView>

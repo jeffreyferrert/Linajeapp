@@ -2,10 +2,12 @@ import axios from 'axios';
 import { SessionAdapter } from './session-adapter';
 import { SecureSessionStorage } from './secure-session-adapter';
 import { router } from 'expo-router';
+import qs from 'qs';
 
 // TODO: Move to .env
 const variables = {
-  API_BASE_URL: 'http://192.168.3.52:8000',
+  API_BASE_URL: 'https://back.linajeapp.com',
+  // API_BASE_URL: 'http://192.168.3.52:8000',
   API_TIMEOUT: parseInt(process.env.REACT_APP_API_TIMEOUT || '5000'),
 };
 
@@ -20,6 +22,8 @@ class HttpClient {
       baseURL: `${variables.API_BASE_URL}/api/`,
       timeout: variables.API_TIMEOUT,
       withCredentials: true,
+      paramsSerializer: (params) =>
+        qs.stringify(params, { arrayFormat: 'repeat' }),
     });
 
     this.initializeInterceptors();
@@ -43,12 +47,10 @@ class HttpClient {
       (response: any) => response,
       async (error: any) => {
         if (error.response && error.response.status === 401) {
-          console.log('Error 401', error);
           await this.secureSessionAdapter.removeValue('token');
           await this.sessionAdapter.flush();
           router.push('/sign-in');
         }
-        console.log('Error en la petición', error);
         return Promise.reject(error);
       },
     );
@@ -59,7 +61,6 @@ class HttpClient {
   }
 
   async post(url: string, data: any, requiresAuth = true) {
-    console.log('Post', url, data);
     return this.instance.post(url, data, { requiresAuth });
   }
 

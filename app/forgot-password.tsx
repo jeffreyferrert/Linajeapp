@@ -16,7 +16,6 @@ const ForgotPassword = () => {
 
   const submitForm = () => {
     setresetPassword2(true);
-    console.log('Submit form');
   };
 
   if (resetPassword2) {

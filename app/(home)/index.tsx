@@ -1,26 +1,19 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AntDesign } from '@expo/vector-icons';
 import FilterCard, { IconName } from '@/components/CustomFilterCard';
-import { BlurView } from 'expo-blur';
 // import AccessCard from '@/components/CustomAccessCard';
 import { Link, router } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
 import CustomSearchBar from '@/components/CustomSearchBar';
-import { useDataContext } from '@/context/DataProvider';
 import CustomAnimalCard from '@/components/CustomAnimalCard';
-import {
-  View,
-  Text,
-  FlatList,
-  Modal,
-  Pressable,
-  ActivityIndicator,
-} from 'react-native';
+import { useAnimalFilter } from '@/hooks/useAnimalFilter';
+import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import DateRangeFilter from '@/components/DateRangeFilter';
-import { useState, useEffect } from 'react';
-import { useAutoAPI } from '@/hooks/useAutoAPI';
+import CustomFilterModal from '@/components/CustomFilterModal';
+import { useState } from 'react';
 import { animalInstance } from '@/api/loader';
-import { AnimalPostOut, PagedAnimalPostOut } from '@/api/domain';
+import CustomSexFilter from '@/components/CustomSexFilter';
+import LineageFilter from '@/components/CustomLineajeFilter';
 
 const filterData = [
   { name: 'Fecha', icon: 'calendar' as IconName },
@@ -34,129 +27,33 @@ const filterData = [
 //   { name: 'Último peleadores', icon: 'contacts' as IconName },
 //   { name: 'Videoteca', icon: 'videocamera' as IconName },
 // ];
+
 const Home = () => {
-  const [animals, setAnimals] = useState([] as AnimalPostOut[]);
-  const [page, setPage] = useState<number>(1);
-  const [hasMore, setHasMore] = useState<boolean>(true);
-  const [loadingMore, setLoadingMore] = useState<boolean>(false);
-  const { getAnimals, filterAnimals, loading, results, error } =
-    useAutoAPI(animalInstance);
+  const {
+    animals,
+    hasMore,
+    loadingMore,
+    loadMoreAnimals,
+    applyFilter,
+    clearFilter,
+    filters,
+    lineages,
+  } = useAnimalFilter(animalInstance);
+
   const [showDateFilter, setShowDateFilter] = useState(false);
-  const [dateFilter, setDateFilter] = useState({ startDate: '', endDate: '' });
-  const [appliedDateFilter, setAppliedDateFilter] = useState<boolean>(false);
-
-  const loadMoreAnimals = async () => {
-    if (loadingMore || !hasMore) return;
-    let response: PagedAnimalPostOut = { count: 0, items: [] };
-    let filters = {
-      startDate: '',
-      endDate: '',
-      search: '',
-      lineages_id: [],
-    };
-    setLoadingMore(true);
-    const nextPage = page + 1;
-    if (appliedDateFilter) {
-      filters.startDate = dateFilter.startDate;
-      filters.endDate = dateFilter.endDate;
-    }
-    if (!appliedDateFilter) {
-      response = await getAnimals(nextPage);
-      console.log('===========Filtrando con getAnimals===========');
-    } else {
-      try {
-        console.log('===========Filtrando con filterAnimals===========');
-        response = await filterAnimals(
-          nextPage,
-          filters.startDate,
-          filters.endDate,
-          filters.search,
-          filters.lineages_id,
-        );
-        console.log('===========Filtrando con filterAnimals===========');
-        console.log('Filtros:', filters);
-      } catch (err) {
-        console.error('Error al filtrar:', err);
-      }
-    }
-
-    if (response && response.items) {
-      // Primero actualiza la lista de animales y luego calcula `hasMore`
-      setAnimals((prevAnimals) => {
-        const updatedAnimals = [...prevAnimals, ...response.items];
-        setHasMore(response.count > updatedAnimals.length); // Usamos `updatedAnimals` para calcular `hasMore`
-        return updatedAnimals; // Devuelve la nueva lista de animales
-      });
-
-      setPage(nextPage);
-    } else {
-      setHasMore(false);
-    }
-
-    setLoadingMore(false);
-  };
-
-  useEffect(() => {
-    const fetchInitialAnimals = async () => {
-      const response = await getAnimals(1);
-      if (response && response.items) {
-        setAnimals(response.items);
-        setHasMore(response.count > response.items.length);
-        setPage(1);
-      } else {
-        setAnimals([]);
-        setHasMore(false);
-      }
-    };
-    fetchInitialAnimals();
-  }, []);
-
-  // Manejar el filtro de fechas
-  const handleDateFilter = async (startDate: string, endDate: string) => {
-    try {
-      const filterResult = await filterAnimals(1, startDate, endDate);
-      if (filterResult && filterResult.items) {
-        setAnimals([]);
-        console.log('Filtrado:', filterResult);
-        setAnimals(filterResult.items);
-        setHasMore(filterResult.count > filterResult.items.length);
-        setAppliedDateFilter(true);
-        setDateFilter({ startDate, endDate });
-        setPage(1);
-      } else {
-        setAnimals([]);
-        setHasMore(false);
-      }
-    } catch (err) {
-      console.error('Error al filtrar:', err);
-    }
-    setShowDateFilter(false);
-  };
-
-  // Manejar la limpieza del filtro de fechas
-  const handleClearDateFilter = async () => {
-    try {
-      const response = await getAnimals(1);
-      if (response && response.items) {
-        setAnimals(response.items);
-        setHasMore(response.count > response.items.length);
-        setPage(1);
-      } else {
-        setAnimals([]);
-        setHasMore(false);
-      }
-      setAppliedDateFilter(false);
-      setDateFilter({ startDate: '', endDate: '' });
-    } catch (err) {
-      console.error('Error al obtener los animales:', err);
-    }
-    setShowDateFilter(false);
-  };
+  const [showSexFilter, setShowSexFilter] = useState(false);
+  const [showLineageFilter, setShowLineageFilter] = useState(false);
+  const [selectedLineages, setSelectedLineages] = useState<
+    {
+      id: number;
+      name: string;
+    }[]
+  >([]);
 
   const handleFilterPress = (filterName: string) => {
-    if (filterName === 'Fecha') {
-      setShowDateFilter(!showDateFilter); // Mostrar el filtro de fecha
-    }
+    if (filterName === 'Fecha') setShowDateFilter(!showDateFilter);
+    if (filterName === 'Sexo') setShowSexFilter(!showSexFilter);
+    if (filterName === 'Linaje') setShowLineageFilter(!showLineageFilter);
   };
 
   // Renderizar el footer para el FlatList (indicación de carga)
@@ -173,7 +70,16 @@ const Home = () => {
     <SafeAreaView className={'bg-gray-200 h-full'}>
       <View className={'h-full p-5 mb-10'}>
         <View className="flex-row justify-around items-center mb-5">
-          <CustomSearchBar placeholder="Buscar" value={''} />
+          <CustomSearchBar
+            placeholder="Buscar"
+            value={''}
+            handleSearch={(query) => {
+              if (query === '') {
+                return;
+              }
+              applyFilter('search', query);
+            }}
+          />
           <View
             className={
               'bg-primary w-12 h-12 rounded-full justify-center items-center'
@@ -196,54 +102,63 @@ const Home = () => {
             data={filterData}
             horizontal
             showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.name} // Clave única basada en el nombre del filtro
+            keyExtractor={(item) => item.name} 
             renderItem={({ item }) => (
               <FilterCard
                 title={item.name}
                 icon={item.icon}
-                onPress={() => handleFilterPress(item.name)} // Maneja el clic en la tarjeta de filtro
+                onPress={() => handleFilterPress(item.name)}
               />
             )}
           />
         </View>
 
         {/* MODAL PARA EL FILTRO DE FECHA */}
-        <Modal
-          animationType="fade"
-          transparent={true}
+        <CustomFilterModal
           visible={showDateFilter}
-          onRequestClose={() => setShowDateFilter(false)}
+          title="Filtrar por Fecha"
+          onClose={() => setShowDateFilter(false)}
         >
-          {/* Fondo difuminado */}
-          <View style={{ flex: 1 }}>
-            <BlurView
-              intensity={70}
-              tint="dark"
-              style={{ position: 'absolute', width: '100%', height: '100%' }}
-            />
+          <DateRangeFilter
+            onFilter={(startDate, endDate) =>
+              applyFilter('dateRange', { startDate, endDate })
+            }
+            onClear={() => clearFilter('dateRange')}
+            appliedDateFilter={
+              !!(filters.dateRange.startDate || filters.dateRange.endDate)
+            }
+          />
+        </CustomFilterModal>
 
-            {/* Contenido del Modal */}
-            <View className="flex-1 justify-center items-center">
-              <View className="bg-white p-6 rounded-lg w-80 shadow-lg">
-                <View className="flex-row justify-between">
-                  <Text className="text-lg font-semibold mb-4">
-                    Filtrar por Fecha
-                  </Text>
-                  <Pressable onPress={() => setShowDateFilter(false)}>
-                    <AntDesign name="close" size={24} color="black" />
-                  </Pressable>
-                </View>
+        <CustomFilterModal
+          visible={showSexFilter}
+          title="Filtrar por Sexo"
+          onClose={() => setShowSexFilter(false)}
+        >
+          <CustomSexFilter
+            onFilter={(selectedSex) => applyFilter('sex', selectedSex)}
+            onClear={() => clearFilter('sex')}
+            appliedSexFilter={!!filters.sex}
+          />
+        </CustomFilterModal>
 
-                <DateRangeFilter
-                  onFilter={handleDateFilter}
-                  onClear={handleClearDateFilter}
-                  appliedDateFilter={appliedDateFilter}
-                />
-              </View>
-            </View>
-          </View>
-        </Modal>
-
+        <CustomFilterModal
+          visible={showLineageFilter}
+          title="Filtrar por Linaje"
+          onClose={() => setShowLineageFilter(false)}
+        >
+          <LineageFilter
+            availableLineages={lineages}
+            selectedLineages={selectedLineages}
+            handleApplyLineageFilter={(selectedLineages) => {
+              setSelectedLineages(selectedLineages);
+              applyFilter(
+                'lineagesId',
+                selectedLineages.map((lineage) => lineage.id),
+              );
+            }}
+          />
+        </CustomFilterModal>
         {/* ACCESO DIRECTO
         <View>
           <Text className="font-semibold text-lg">Accesos directos</Text>
@@ -281,6 +196,8 @@ const Home = () => {
             }}
             onEndReachedThreshold={0.5}
             ListFooterComponent={renderFooter}
+            className="mb-20"
+            windowSize={15}
           />
         </View>
       </View>

@@ -22,7 +22,6 @@ const DateRangeFilter = ({
       onFilter(startDate, endDate);
     } else {
       // Mostrar alguna notificación o alerta si las fechas no están completas
-      console.log('Por favor selecciona ambas fechas');
     }
   };
 

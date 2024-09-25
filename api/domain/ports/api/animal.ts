@@ -6,17 +6,20 @@ import type {
   LineagePostIn,
   LineagePostOut,
   PagedAnimalPostOut,
+  AnimalFamily,
 } from '../../types/animal';
 
 interface IAnimalAPI {
   getAnimal(id: number): Promise<AnimalPostOut>;
   getAnimals(page?: number): Promise<PagedAnimalPostOut>;
+  getFamily(id: number): Promise<AnimalFamily>;
   filterAnimals(
     page?: number,
     start_date?: string,
     end_date?: string,
     search?: string,
     lineages_id?: number[],
+    sex?: 'M' | 'F',
     // type?: number,
     // status?: number
   ): Promise<PagedAnimalPostOut>;

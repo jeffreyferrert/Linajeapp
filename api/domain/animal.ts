@@ -8,6 +8,7 @@ import {
   LineagePostIn,
   LineagePostOut,
   PagedAnimalPostOut,
+  AnimalFamily,
 } from './types/animal';
 
 class AnimalAPI implements IAnimalAPI {
@@ -20,15 +21,26 @@ class AnimalAPI implements IAnimalAPI {
     return await this.animalAdapter.getAnimals(page);
   }
 
+  async getFamily(id: number): Promise<AnimalFamily> {
+    return await this.animalAdapter.getFamily(id);
+  }
+
   async filterAnimals(
     page?: number,
     start_date?: string,
     end_date?: string,
     search?: string,
     lineages_id?: number[],
+    sex?: 'male' | 'female' | 'M' | 'F',
   ): Promise<PagedAnimalPostOut> {
     if ((start_date && !end_date) || (!start_date && end_date)) {
       throw new Error('Start date and end date must be provided together');
+    }
+    if (sex === 'male') sex = 'M';
+    if (sex === 'female') sex = 'F';
+    if (start_date === '' || end_date === '') {
+      start_date = undefined;
+      end_date = undefined;
     }
     return await this.animalAdapter.filterAnimals(
       page,
@@ -36,6 +48,7 @@ class AnimalAPI implements IAnimalAPI {
       end_date,
       search,
       lineages_id,
+      sex,
     );
   }
 

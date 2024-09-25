@@ -49,17 +49,28 @@ const Create = () => {
   const { loading, results, getLineages, createAnimal } =
     useAutoAPI(animalInstance);
 
-  // Ejecuta la llamada API para obtener linajes
   useEffect(() => {
     getLineages();
   }, [getLineages]);
 
-  // Actualiza el estado de los linajes desde el resultado del API
   useEffect(() => {
     setServerLineages(results?.getLineages || []);
   }, [results.getLineages]);
 
-  // Cambia el título del botón cuando esté cargando
+  useEffect(() => {
+    let valid = true;
+    broods.forEach((brood, i) => {
+      let sum = 0;
+      brood.lineages.forEach((linaje, j) => {
+        sum += fractions[i][j];
+      });
+      if (sum !== 1) {
+        valid = false;
+      }
+    });
+    setEnableButton(valid);
+  }, [fractions]);
+
   useEffect(() => {
     if (loading) {
       setButtonTitle('Cargando...');
@@ -69,16 +80,14 @@ const Create = () => {
       setButtonTitle(step === 4 ? 'Guardar' : 'Continuar');
     }
     if (step === 3) {
-      // Limpiar los lineajes en blanco
       const newBroods = [...broods];
       newBroods.forEach((brood) => {
         brood.lineages = brood.lineages.filter((linaje) => linaje.id !== 0);
       });
       setBroods(newBroods);
-      // Detectar si no hay ningún linaje seleccionado y saltar al paso 4
+
       let allZero = true;
       broods.forEach((brood) => {
-        console.log(brood.lineages);
         if (brood.lineages.length > 0) {
           allZero = false;
         }
@@ -102,7 +111,6 @@ const Create = () => {
     if (step < 4) {
       setStep(step + 1);
     } else if (step === 4) {
-      // Guardar los datos
       const animalsData: AnimalPostIn[] = broods.flatMap((brood) => {
         return brood.offsprings.map((offspring) => ({
           code: offspring.code,
@@ -113,19 +121,19 @@ const Create = () => {
           lineages: brood.lineages.map((linaje) => ({
             lineage_id: linaje.id,
             percentage: linaje.percentage * 100,
+            name: linaje.name,
           })),
         }));
       });
 
       setButtonTitle('Guardando...');
 
-      // Crear los animales en paralelo y esperar a que todos terminen
       Promise.all(
         animalsData.map((animal) =>
           createAnimal(animal).catch((error) => {
             Alert.alert('Error', 'Hubo un error al guardar los animales');
             console.error('Error al guardar los animales:', error.message);
-            throw error; // Lanzar el error para que Promise.all lo maneje
+            throw error;
           }),
         ),
       )
@@ -137,7 +145,6 @@ const Create = () => {
             'Error al completar la creación de los animales:',
             error,
           );
-          // Aquí puedes manejar cualquier acción adicional en caso de error.
         })
         .finally(() => {
           setButtonTitle('Guardar');

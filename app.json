@@ -10,16 +10,20 @@
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#38B6FF"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.linajeapp.app"
+      "supportsTablet": false,  
+      "bundleIdentifier": "com.linajeapp.app",
+      "requireFullScreen": true,
+      "infoPlist": {
+        "UIRequiredDeviceCapabilities": ["arm64"] 
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#38B6FF"
       },
       "package": "com.linajeapp.app"
     },
@@ -51,9 +55,15 @@
     },
     "extra": {
       "eas": {
-        "projectId": "a8211e65-3ac7-4f4f-ad1c-54c600f43d45"
+        "projectId": "948f0fd4-e263-41f2-b573-ebf4a68aabf0"
       }
     },
-    "owner": "linajeapp"
+    "owner": "linajeapp",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/948f0fd4-e263-41f2-b573-ebf4a68aabf0"
+    }
   }
 }

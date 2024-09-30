@@ -102,7 +102,7 @@ const Home = () => {
             data={filterData}
             horizontal
             showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.name} 
+            keyExtractor={(item) => item.name}
             renderItem={({ item }) => (
               <FilterCard
                 title={item.name}
